@@ -87,6 +87,9 @@ canvas {
 .feature-text {
   @apply text-gray max-w-md text-lg md:text-xl font-semibold opacity-0 translate-y-[100px]
 }
+.feature-text-container {
+    @apply w-full flex justify-center items-center flex-col md:flex-row mt-10 md:mt-16  gap-5
+  }
 
 
  
