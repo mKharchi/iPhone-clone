@@ -1,46 +1,73 @@
-import { Html, OrbitControls, PerspectiveCamera, View } from "@react-three/drei"
+"use client";
 
-import * as THREE from 'three'
+import { Html, OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import * as THREE from 'three';
+import { useRef, useEffect, Suspense, useState } from "react";
+import { Canvas } from "@react-three/fiber";
 import Lights from './Lights';
 import Loader from './Loader';
 import IPhone from './IPhone';
-import { Suspense } from "react";
 
 const ModelView = ({ index, groupRef, gsapType, controlRef, setRotationState, size, item }) => {
+  // Local reference for OrbitControls if no external ref is provided
+  const localControlRef = useRef();
+  const finalControlRef = controlRef || localControlRef;
+
+  // Track if component is mounted
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Update controls when mounted
+    if (finalControlRef.current) {
+      finalControlRef.current.update();
+    }
+  }, []);
+
   return (
-    <View
-      index={index}
-      id={gsapType}
-      className={`w-full h-full absolute ${index === 2 ? 'right-[-100%]' : ''}`}
-    >
-      {/* Ambient Light */}
-      <ambientLight intensity={0.3} />
+    <div id={gsapType} className={`w-full h-full absolute ${index === 2 ? 'right-[-100%]' : ''}`}>
+      <Canvas
+        className="w-full h-full"
+        style={{ pointerEvents: 'auto' }}
+        dpr={[1, 2]}
+      >
+        {/* Camera and lighting */}
+        <PerspectiveCamera makeDefault position={[0, 0, 4]} />
+        <ambientLight intensity={0.3} />
+        <Lights />
 
-      <PerspectiveCamera makeDefault position={[0, 0, 4]} />
+        {/* Controls for model interaction */}
+        <OrbitControls
+          ref={finalControlRef}
+          enableZoom={false}
+          enablePan={false}
+          rotateSpeed={0.4}
+          target={new THREE.Vector3(0, 0, 0)}
+          onEnd={() => {
+            if (setRotationState && finalControlRef.current) {
+              setRotationState(finalControlRef.current.getAzimuthalAngle());
+            }
+          }}
+        />
 
-      <Lights />
+        {/* Model group */}
+        <group
+          ref={groupRef}
+          name={index === 1 ? 'small' : 'large'}
+          position={[0, 0, 0]}
+        >
+          <Suspense fallback={<Loader />}>
+            <IPhone
+              scale={index === 1 ? [15, 15, 15] : [17, 17, 17]}
+              item={item}
+              size={size}
+            />
+          </Suspense>
+        </group>
+      </Canvas>
+    </div>
+  );
+};
 
-      <OrbitControls 
-        makeDefault
-        ref={controlRef}
-        enableZoom={false}
-        enablePan={false}
-        rotateSpeed={0.4}
-        target={new THREE.Vector3(0, 0 ,0)}
-        onEnd={() => setRotationState(controlRef.current.getAzimuthalAngle())}
-      /> 
-
-      <group ref={groupRef} name={`${index === 1} ? 'small' : 'large`} position={[0, 0 ,0]}>
-        <Suspense fallback={<Loader />}>
-          <IPhone 
-            scale={index === 1 ? [15, 15, 15] : [17, 17, 17]}
-            item={item}
-            size={size}
-          />
-        </Suspense>
-      </group>
-    </View>
-  )
-}
-
-export default ModelView
+export default ModelView;

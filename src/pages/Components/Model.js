@@ -2,12 +2,11 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import ModelView from "./ModelView";
 import { useEffect, useRef, useState } from "react";
 import { yellowImg } from "@/utils";
 import * as THREE from 'three';
 import { Canvas } from "@react-three/fiber";
-import { View } from "@react-three/drei";
+import ModelView from "./ModelView";
 import { models, sizes } from "@/constants";
 import { animateWithGsapTimeline } from "@/utils/animations";
 
@@ -19,87 +18,94 @@ const Model = () => {
     img: yellowImg,
   });
 
-  // camera control for the model view
+  // Camera control refs
   const cameraControlSmall = useRef();
   const cameraControlLarge = useRef();
 
-  // model
+  // Model group refs
   const small = useRef(new THREE.Group());
   const large = useRef(new THREE.Group());
 
-  // rotation
+  // Rotation states
   const [smallRotation, setSmallRotation] = useState(0);
   const [largeRotation, setLargeRotation] = useState(0);
 
-  // State for tracking client-side readiness
-  const [isClient, setIsClient] = useState(false);
+  // Client-side mounting detection
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // GSAP animations
+  const tl = gsap.timeline();
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-const tl = gsap.timeline()
-useEffect(() => {
-  if(size === 'large'){
-    animateWithGsapTimeline(tl , small , smallRotation , "#view1" , "#view2" , {transform:'translateX(-100%)' , duration:1})
-  }
-  if(size === 'small'){
-  animateWithGsapTimeline(tl , large , largeRotation , "#view2" , "#view1" , {transform:'translateX(0)' , duration:1})
-  
-  }
-  
-} , [size])
+    if(size === 'large'){
+      animateWithGsapTimeline(tl, small, smallRotation, "#view1", "#view2", {transform:'translateX(-100%)', duration:1});
+    }
+    if(size === 'small'){
+      animateWithGsapTimeline(tl, large, largeRotation, "#view2", "#view1", {transform:'translateX(0)', duration:1});
+    }
+  }, [size]);
 
   useGSAP(() => {
     gsap.to('#heading', { y: 0, opacity: 1 });
   }, []);
 
-  return isClient && (<section className="common-padding">
+  return (
+    <section className="common-padding">
       <div className="screen-max-width">
         <h1 id="heading" className="section-heading">
           Take a closer look.
         </h1>
 
         <div className="flex flex-col items-center mt-5">
-          <div className="w-full h-[75vh] md:h-[90vh] overflow-hidden relative" >
-            <ModelView 
-    index={1}
-    groupRef={small}
-    gsapType="view1"
-    controlRef={cameraControlSmall}
-    setRotationState={setSmallRotation}
-    item={model}
-    size={size}
-  />  
+          <div className="w-full h-[75vh] md:h-[90vh] overflow-hidden relative" style={{ touchAction: 'none' }}>
+            {/* Model views outside of Canvas - as in your original structure */}
+            <div id="view1" className="w-full h-full absolute" style={{ touchAction: 'none' }}>
+              {isMounted && (
+                <ModelView 
+                  index={1}
+                  groupRef={small}
+                  gsapType="view1"
+                  controlRef={cameraControlSmall}
+                  setRotationState={setSmallRotation}
+                  item={model}
+                  size={size}
+                />
+              )}
+            </div>
 
-  <ModelView 
-    index={2}
-    groupRef={large}
-    gsapType="view2"
-    controlRef={cameraControlLarge}
-    setRotationState={setLargeRotation}
-    item={model}
-    size={size}
-  />
+            <div id="view2" className={`w-full h-full absolute ${size === 'small' ? 'right-[-100%]' : 'left-full'}`} style={{ touchAction: 'none' }}>
+              {isMounted && (
+                <ModelView 
+                  index={2}
+                  groupRef={large}
+                  gsapType="view2"
+                  controlRef={cameraControlLarge}
+                  setRotationState={setLargeRotation}
+                  item={model}
+                  size={size}
+                />
+              )}
+            </div>
 
-           
-           <Canvas
-  className="w-full h-full"
-  style={{
-    position: 'fixed',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    overflow: 'hidden',
-    pointerEvents: 'none'
-  }}
-  eventSource={document.getElementById('root')}
->
-  {/* This is the correct place for ModelView */}
- 
-  {/* This provides layout for views (optional in latest drei) */}
-  <View.Port />
-</Canvas>
+            {/* Single Canvas for all rendering - keeping empty as per original structure */}
+            {false && isMounted && (
+              <Canvas 
+                className="w-full h-full"
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  touchAction: 'none'
+                }}
+                dpr={[1, 2]}
+              />
+            )}
           </div>
 
           <div className="mx-auto w-full">
@@ -108,13 +114,26 @@ useEffect(() => {
             <div className="flex-center">
               <ul className="color-container">
                 {models.map((item, i) => (
-                  <li key={i} className="w-6 h-6 rounded-full mx-2 cursor-pointer" style={{ backgroundColor: item.color[0] }} onClick={() => setModel(item)} />
+                  <li 
+                    key={i} 
+                    className="w-6 h-6 rounded-full mx-2 cursor-pointer" 
+                    style={{ backgroundColor: item.color[0] }} 
+                    onClick={() => setModel(item)} 
+                  />
                 ))}
               </ul>
 
               <button className="size-btn-container">
                 {sizes.map(({ label, value }) => (
-                  <span key={label} className="size-btn" style={{ backgroundColor: size === value ? 'white' : 'transparent', color: size === value ? 'black' : 'white'}} onClick={() => setSize(value)}>
+                  <span 
+                    key={label} 
+                    className="size-btn" 
+                    style={{ 
+                      backgroundColor: size === value ? 'white' : 'transparent', 
+                      color: size === value ? 'black' : 'white'
+                    }} 
+                    onClick={() => setSize(value)}
+                  >
                     {label}
                   </span>
                 ))}
@@ -124,8 +143,7 @@ useEffect(() => {
         </div>
       </div>
     </section>
-  
   );
-}
+};
 
 export default Model;
