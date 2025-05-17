@@ -3,6 +3,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 gsap.registerPlugin(ScrollTrigger);
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 import { hightlightsSlides } from "@/constants";
 import { pauseImg, playImg, replayImg } from "@/utils";
@@ -113,7 +114,7 @@ const VideoCarousel = () => {
         gsap.ticker.remove(animUpdate);
       }
     }
-  }, [videoId, startPlay]);
+  }, [videoId, startPlay, isPlaying]);
 
   useEffect(() => {
     if (loadedData.length > 3) {
@@ -233,9 +234,11 @@ const VideoCarousel = () => {
         </div>
 
         <button className="control-btn">
-          <img
+          <Image
             src={isLastVideo ? replayImg : !isPlaying ? playImg : pauseImg}
             alt={isLastVideo ? "replay" : !isPlaying ? "play" : "pause"}
+            width={24}
+            height={24}
             onClick={
               isLastVideo
                 ? () => handleProcess("video-reset")

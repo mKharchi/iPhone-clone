@@ -47,7 +47,7 @@ const Model = () => {
     if(size === 'small'){
       animateWithGsapTimeline(tl, large, largeRotation, "#view2", "#view1", {transform:'translateX(0)', duration:1});
     }
-  }, [size]);
+  }, [size, smallRotation, largeRotation, tl]);
 
   useGSAP(() => {
     gsap.to('#heading', { y: 0, opacity: 1 });

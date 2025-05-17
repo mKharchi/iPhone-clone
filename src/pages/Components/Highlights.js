@@ -3,6 +3,8 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import React from "react";
 import VideoCarousel from "./VideoCarousel";
+import Image from "next/image";
+
 const Highlights = () => {
   useGSAP(() => {
     gsap.to("#title", {
@@ -27,21 +29,25 @@ const Highlights = () => {
             Get the highlights
           </h1>
           <div className="flex flex-wrap  items-end  gap-5">
-            <p className="link">Watch the film<img
-              src={watchImg}
-              alt="watch"
-              className="ml-2"
-              width={18}
-              height={18}
-            /></p>
+            <p className="link">Watch the film
+              <Image
+                src={watchImg}
+                alt="watch"
+                className="ml-2"
+                width={18}
+                height={18}
+              />
+            </p>
             
-            <p className="link">Watch the event<img
-              src={rightImg}
-              alt="watch"
-              className="ml-2"
-              width={18}
-              height={18}
-            /></p>
+            <p className="link">Watch the event
+              <Image
+                src={rightImg}
+                alt="watch"
+                className="ml-2"
+                width={18}
+                height={18}
+              />
+            </p>
             
           </div>
         </div>
