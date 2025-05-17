@@ -4,10 +4,9 @@ import { Html, OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from 'three';
 import { useRef, useEffect, Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import Lights from './Lights';
+import LightsComponent from './LightsComponent';
 import Loader from './Loader';
 import IPhone from './IPhone';
-import LightsPage from "./LightsPage";
 
 const ModelView = ({ index, groupRef, gsapType, controlRef, setRotationState, size, item }) => {
   // Local reference for OrbitControls if no external ref is provided
@@ -32,12 +31,23 @@ const ModelView = ({ index, groupRef, gsapType, controlRef, setRotationState, si
         className="w-full h-full"
         style={{ pointerEvents: 'auto' }}
         dpr={[1, 2]}
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          outputEncoding: THREE.sRGBEncoding
+        }}
+        camera={{
+          fov: 45,
+          near: 0.1,
+          far: 200,
+          position: [0, 0, 4]
+        }}
       >
         {/* Camera and lighting */}
         <PerspectiveCamera makeDefault position={[0, 0, 4]} />
         <ambientLight intensity={0.3} />
 
-        <Lights />
+        <LightsComponent />
         {/* Controls for model interaction */}
         <OrbitControls
           ref={finalControlRef}
