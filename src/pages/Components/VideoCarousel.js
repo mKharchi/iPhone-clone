@@ -123,7 +123,7 @@ const VideoCarousel = () => {
         startPlay && videoRef.current[videoId].play();
       }
     }
-  }, [startPlay, videoId,  loadedData]);
+  }, [startPlay, videoId, isPlaying ,  loadedData]);
 
   // vd id is the id for every video until id becomes number 3
   const handleProcess = (type, i) => {
