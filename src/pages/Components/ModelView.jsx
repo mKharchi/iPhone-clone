@@ -7,6 +7,7 @@ import { Canvas } from "@react-three/fiber";
 import Lights from './Lights';
 import Loader from './Loader';
 import IPhone from './IPhone';
+import LightsPage from "./LightsPage";
 
 const ModelView = ({ index, groupRef, gsapType, controlRef, setRotationState, size, item }) => {
   // Local reference for OrbitControls if no external ref is provided
@@ -35,8 +36,8 @@ const ModelView = ({ index, groupRef, gsapType, controlRef, setRotationState, si
         {/* Camera and lighting */}
         <PerspectiveCamera makeDefault position={[0, 0, 4]} />
         <ambientLight intensity={0.3} />
-        <Lights />
 
+        <Lights />
         {/* Controls for model interaction */}
         <OrbitControls
           ref={finalControlRef}
