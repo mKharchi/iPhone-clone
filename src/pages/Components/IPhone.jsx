@@ -10,7 +10,7 @@ Title: Apple iPhone 15 Pro Max Black
 
 import * as THREE from 'three';
 import React, { useEffect, useRef, Suspense } from "react";
-import { useGLTF, useTexture } from "@react-three/drei";
+import { useGLTF, useTexture, Html } from "@react-three/drei";
 import dynamic from 'next/dynamic';
 
 // Move preload inside a client-side only check
@@ -269,7 +269,11 @@ function Model(props) {
 // Create a dynamic component that's only loaded on the client side
 const IPhone = dynamic(() => Promise.resolve(Model), {
   ssr: false,
-  loading: () => <div>Loading...</div>
+  loading: () => (
+    <Html center>
+      <div className="text-white">Loading...</div>
+    </Html>
+  )
 });
 
 export default IPhone;
