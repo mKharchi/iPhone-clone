@@ -13,31 +13,27 @@ import React, { useEffect, useRef, Suspense } from "react";
 import { useGLTF, useTexture, Html } from "@react-three/drei";
 import dynamic from 'next/dynamic';
 
-// Move preload inside a client-side only check
-if (typeof window !== 'undefined') {
-  useGLTF.preload("/models/scene.glb");
-}
-
-function Model(props) {
-  const { nodes, materials } = useGLTF("/models/scene.glb", true); // Add true for draco compression
+// Create a client-side only component for the 3D model
+const Model = ({ item, ...props }) => {
+  const { nodes, materials } = useGLTF("/models/scene.glb", true);
 
   useEffect(() => {
     if (!materials) return;
     
-    Object.entries(materials).map((material) => {
+    Object.entries(materials).forEach(([name, material]) => {
       // these are the material names that can't be changed color
       if (
-        material[0] !== "zFdeDaGNRwzccye" &&
-        material[0] !== "ujsvqBWRMnqdwPx" &&
-        material[0] !== "hUlRcbieVuIiOXG" &&
-        material[0] !== "jlzuBkUzuJqgiAK" &&
-        material[0] !== "xNrofRCqOXXHVZt"
+        name !== "zFdeDaGNRwzccye" &&
+        name !== "ujsvqBWRMnqdwPx" &&
+        name !== "hUlRcbieVuIiOXG" &&
+        name !== "jlzuBkUzuJqgiAK" &&
+        name !== "xNrofRCqOXXHVZt"
       ) {
-        material[1].color = new THREE.Color(props.item.color[0]);
+        material.color = new THREE.Color(item.color[0]);
       }
-      material[1].needsUpdate = true;
+      material.needsUpdate = true;
     });
-  }, [materials, props.item]);
+  }, [materials, item]);
 
   if (!nodes || !materials) return null;
 
@@ -264,16 +260,34 @@ function Model(props) {
       />
     </group>
   );
-}
+};
+
+// Create a wrapper component that handles the Canvas context
+const IPhoneWrapper = ({ item, ...props }) => {
+  return (
+    <Suspense fallback={
+      <Html center>
+        <div className="text-white">Loading...</div>
+      </Html>
+    }>
+      <Model item={item} {...props} />
+    </Suspense>
+  );
+};
 
 // Create a dynamic component that's only loaded on the client side
-const IPhone = dynamic(() => Promise.resolve(Model), {
+const IPhone = dynamic(() => Promise.resolve(IPhoneWrapper), {
   ssr: false,
   loading: () => (
-    <Html center>
+    <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
       <div className="text-white">Loading...</div>
-    </Html>
+    </div>
   )
 });
+
+// Preload the model on the client side only
+if (typeof window !== 'undefined') {
+  useGLTF.preload("/models/scene.glb");
+}
 
 export default IPhone;

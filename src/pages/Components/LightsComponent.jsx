@@ -2,8 +2,10 @@
 
 import { Environment, Lightformer } from "@react-three/drei";
 import * as THREE from 'three';
+import dynamic from 'next/dynamic';
 
-const LightsComponent = () => {
+// Create a client-side only component for the lights
+const LightsComponentInner = () => {
   return (
     // group different lights and lightformers. We can use group to organize lights, cameras, meshes, and other objects in the scene.
     <group name="lights">
@@ -72,5 +74,11 @@ const LightsComponent = () => {
     </group>
   );
 };
+
+// Create a dynamic component that's only loaded on the client side
+const LightsComponent = dynamic(() => Promise.resolve(LightsComponentInner), {
+  ssr: false,
+  loading: () => null // Return null during SSR since lights aren't needed for initial render
+});
 
 export default LightsComponent; 
